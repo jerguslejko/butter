@@ -27,7 +27,7 @@ def load() -> Config:
     config.set_file("butter.yml")
 
     try:
-        return Config(**config.get())
+        return Config(**config.get(), path=os.getcwd())
     except ValidationError as e:
         print(e)
         sys.exit(1)
@@ -36,27 +36,24 @@ def load() -> Config:
 def refresh():
     logger.info("refreshing configuration...")
 
+    initialize()
+
     write(
         config:=load(),
         path(f"butters/{config.name}.ini"),
     )
 
 
-def initialize(force: bool) -> None:
+def initialize() -> None:
     config_dir = Path(path())
+    butters_dir = Path(path('butters')) 
 
-    if not force and config_dir.exists():
-        logger.error("configuration already exists...")
-        return
+    if not config_dir.exists():
+        config_dir.mkdir()
 
-    if force:
-        logger.info("removing old installation...")
-        shutil.rmtree(config_dir)
+    if not butters_dir.exists():
+        butters_dir.mkdir()
 
-    logger.info("installing butter...")
-
-    config_dir.mkdir()
-    Path(f"{path()}/butters").mkdir()
     shutil.copyfile(
         os.path.join(
             os.path.abspath(os.path.dirname(__file__)),

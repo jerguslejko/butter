@@ -1,76 +1,62 @@
 import subprocess
-from typing import List, Optional, Tuple
+from typing import List, Optional
 from logging import getLogger
 from butter import config
-from typing import List
-from logging import getLogger
-from butter import config, supervisor
 
 
 logger = getLogger(__name__)
 
+###
 
-def pid():
-    return supervisorctl(["pid"], capture_output=True)
-
-
-
-def ensure_running():
-    if pid() is not None:
-        return
-
-    logger.info("starting supervisord...")
-    supervisord([])
-
-
-
-def start(programs: Tuple[str]) -> None:
-    ensure_running()
-
-    supervisorctl(["start"] + list(programs))
-
-
-def restart(programs: List[str]) -> None:
-    ensure_running()
-
-    logger.info("restarting supervisord...")
-
-    supervisorctl(["restart"] + list(programs))
-
-
-
-def status(programs: Tuple[str]) -> None:
-    ensure_running()
-
-    supervisorctl(["status"]+list(programs))
-
-
-def stop(programs:Tuple[str]) -> None:
-    ensure_running()
-
-    supervisorctl(["stop"] + list(programs))
-
-def reload() -> None:
-    ensure_running()
-
-    supervisorctl(["reload"], capture_output=True)
-
-def logs(program: str, follow: bool):
-    supervisorctl(["tail"] + (["-f"] if follow else []) + [f"{program}"])
-
-
-def supervisorctl(commands: List[str], capture_output: bool = False):
+def supervisorctl(commands: List[str], capture_output: bool = False) -> Optional[str]:
     return _run("supervisorctl", commands, capture_output=capture_output)
 
-def supervisord(commands: List[str], capture_output: bool = False):
+def supervisord(commands: List[str], capture_output: bool = False) -> Optional[str]:
     return _run("supervisord", commands, capture_output=capture_output)
 
 def _run(program, arguments: List[str], capture_output: bool = False) -> Optional[str]:
     process = subprocess.run(
-           [program, "-c", config.path("supervisor.conf")]+
-        arguments,
+        [program, "-c", config.path("supervisor.conf")] + arguments,
         capture_output=capture_output,
     )
 
     if capture_output and process.returncode == 0:
         return process.stdout.decode().strip()
+
+###
+
+def refresh(f):
+    def wrapper(*args, **kwargs):
+        if supervisorctl(["pid"], capture_output=True) is None:
+            logger.info("starting supervisord...")
+            supervisord([])
+
+        config.refresh()
+
+        supervisorctl(["update"], capture_output=True)
+
+        return f(*args, **kwargs)
+
+    return wrapper
+
+###
+
+@refresh
+def start(programs: List[str]) -> None:
+    supervisorctl(["start"] + programs)
+
+@refresh
+def restart(programs: List[str]) -> None:
+    supervisorctl(["restart"] + programs)
+
+@refresh
+def stop(programs: List[str]) -> None:
+    supervisorctl(["stop"] + programs)
+
+@refresh
+def status(programs: List[str]) -> None:
+    supervisorctl(["status"] + programs)
+
+@refresh
+def logs(program: str, follow: bool) -> None:
+    supervisorctl(["tail"] + (["-f"] if follow else []) + [f"{program}"])

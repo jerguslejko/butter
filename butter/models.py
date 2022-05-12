@@ -10,4 +10,5 @@ class Program(BaseModel):
 
 class Config(BaseModel):
     name: str
+    path: str
     programs: List[Program]
