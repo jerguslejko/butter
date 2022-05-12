@@ -1,0 +1,24 @@
+from butter.models import Config
+from configparser import ConfigParser
+
+
+def write(config: Config, path: str) -> None:
+    parser = ConfigParser()
+
+    parser[f"group:{config.name}"] = {
+        "programs": ", ".join(k.name for k in config.programs)
+    }
+
+    for program in config.programs:
+        parser[f"program:{program.name}"] = {
+            "command": program.command,
+            "directory": program.working_directory,
+            "redirect_stderr": "true",
+            "autostart": "true",
+            "autorestart": "true",
+            "stopasgroup": "true",
+            "killasgroup": "true",
+        }
+
+    with open(path, "w") as f:
+        parser.write(f, space_around_delimiters=False)

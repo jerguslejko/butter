@@ -1,0 +1,23 @@
+[tool.poetry]
+authors = ["Jerguš Lejko <jerguslejko@users.noreply.github.com>"]
+description = ""
+name = "butter"
+version = "0.1.0"
+
+[tool.poetry.scripts]
+butter = "butter.cli:cli"
+
+[tool.poetry.dependencies]
+appdirs = "^1.4.4"
+click = "^8.1.3"
+confuse = "^1.7.0"
+pydantic = "^1.9.0"
+python = "^3.9"
+supervisor = "^4.2.4"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
