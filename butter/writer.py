@@ -12,7 +12,7 @@ def write(config: Config, path: str) -> None:
 
     for program in config.programs:
         parser[f"program:{config.name}-{program.name}"] = {
-            "command": program.command,
+            "command": f'/bin/bash -c "{program.command}"',
             "directory": os.path.join(config.path, program.working_directory),
             # TODO: escape values
             "environment": ", ".join(f"{key}={value}" for key, value in (program.env or {}).items()),
