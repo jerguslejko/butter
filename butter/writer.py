@@ -1,5 +1,5 @@
 import os
-from butter.models import Config
+from butter.schema import Config
 from configparser import ConfigParser
 
 

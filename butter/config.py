@@ -9,7 +9,7 @@ from typing import List, Tuple
 from confuse import Configuration
 from pydantic import ValidationError
 from appdirs import user_config_dir
-from butter.models import Config
+from butter.schema import Config
 from butter.writer import write
 from pathlib import Path
 
