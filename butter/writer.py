@@ -14,6 +14,8 @@ def write(config: Config, path: str) -> None:
         parser[f"program:{config.name}-{program.name}"] = {
             "command": program.command,
             "directory": os.path.join(config.path, program.working_directory),
+            # TODO: escape values
+            "environment": ", ".join(f"{key}={value}" for key, value in (program.env or {}).items()),
             "redirect_stderr": "true",
             "autostart": "true",
             "autorestart": "true",
