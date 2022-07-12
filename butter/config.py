@@ -22,9 +22,36 @@ def path(extra_path="") -> str:
 
 @cache
 def load() -> Config:
+    def parent_directories(start: str)-> List[str]:
+        parents = []
+        current = start
+
+        while True:
+            parents.append(current)
+            
+            if current == '/':
+                break
+
+            current = os.path.dirname(current)
+
+        return parents
+
+    def config_files(directories: List[str])->List[str]:
+        results = []
+
+        for directory in directories:
+            if os.path.exists(os.path.join(directory, "butter.yaml")):
+                results.append(directory + "/butter.yaml")
+            if os.path.exists(os.path.join(directory, "butter.yml")):
+                results.append(directory + "/butter.yml")
+
+        return results
+
+
     config = Configuration("butter", __name__)
-    # TODO: add up-level directory
-    config.set_file("butter.yml")
+
+    for file in config_files(parent_directories(os.getcwd())):
+        config.set_file(file)
 
     try:
         return Config(**config.get(), path=os.getcwd())
