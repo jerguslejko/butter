@@ -5,7 +5,8 @@ import logging
 import click
 from typing import List
 from logging import getLogger
-from butter import config, supervisor
+from butter import config, supervisor, runner
+from butter.schema import Command
 
 logger = getLogger(__name__)
 
@@ -35,6 +36,13 @@ def validate_programs(ctx, param, value) -> List[str]:
         return [f"{namespace}:*"]
 
     return list(map(lambda value: validate_program(ctx, param, value), value))
+
+def validate_command(ctx, param ,value) -> str:
+    for command in config.load().commands:
+        if command.name == value:
+            return command
+
+    raise click.BadParameter(f"command {value} not found")
 
 ###
 
@@ -67,6 +75,12 @@ def logs(program, follow):
 @cli.command(help="open web UI")
 def ui():
     os.system("open http://localhost:9001")
+
+@cli.command(help="run a custom command")
+@click.argument("command", callback=validate_command)
+def run(command: Command):
+    runner.run(command)
+
 
 ### helpers
 

@@ -49,12 +49,16 @@ def load() -> Config:
 
 
     config = Configuration("butter", __name__)
+    config_files = config_files(parent_directories(os.getcwd()))
 
-    for file in config_files(parent_directories(os.getcwd())):
+    if len(config_files) == 0:
+        raise RuntimeError("no configuration found")
+
+    for file in config_files:
         config.set_file(file)
 
     try:
-        return Config(**config.get(), path=os.getcwd())
+        return Config(**config.get(), path=os.path.dirname(file))
     except ValidationError as e:
         print(e)
         sys.exit(1)
