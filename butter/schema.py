@@ -18,4 +18,4 @@ class Config(BaseModel):
     name: str
     path: str
     programs: List[Program]
-    commands: List[Command]
+    commands: Optional[List[Command]]
