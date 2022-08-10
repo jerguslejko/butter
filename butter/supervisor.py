@@ -1,3 +1,5 @@
+import os
+import sys
 import subprocess
 from typing import List, Optional
 from logging import getLogger
@@ -16,7 +18,8 @@ def supervisord(commands: List[str], capture_output: bool = False) -> Optional[s
 
 def _run(program, arguments: List[str], capture_output: bool = False) -> Optional[str]:
     process = subprocess.run(
-        [program, "-c", config.path("supervisor.conf")] + arguments,
+        # TODO: this might be a hack? not sure how will it behave when packaged
+        [os.path.join(os.path.dirname(sys.executable), program), "-c", config.path("supervisor.conf")] + arguments,
         capture_output=capture_output,
     )
 
