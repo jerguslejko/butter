@@ -76,10 +76,17 @@ def logs(program, follow):
 def ui():
     os.system("open http://localhost:9001")
 
-@cli.command(help="run a custom command")
+@cli.command(
+    help="run a custom command",
+    context_settings=dict(
+        ignore_unknown_options=True,
+        allow_extra_args=True,
+    ),
+)
 @click.argument("command", callback=validate_command)
-def run(command: Command):
-    runner.run(command)
+@click.pass_context
+def run(ctx, command: Command):
+    runner.run(command, extra_args=ctx.args)
 
 
 ### helpers
