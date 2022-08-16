@@ -17,6 +17,9 @@ supervisor = "^4.2.4"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
+flake8 = "^5.0.4"
+isort = "^5.10.1"
+mypy = "^0.971"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

@@ -9,11 +9,11 @@ Think of this as `docker-compose` without `docker` (_butter_ manages local proce
 ## Example
 
 ```yaml
-name: seagull 
+name: seagull
 programs:
   - name: backend
     command: source venv/bin/activate && python manage.py runserver
-    working-directory: backend 
+    working-directory: backend
     env:
       DJANGO_SETTINGS_MODULE: seagull.config.local
   - name: frontend
@@ -23,5 +23,5 @@ commands:
   - name: fresh
     command: source venv/bin/activate && psql -c "drop database seagull" && psql -c "create database seagull" && python manage.py migrate
     mode: downtime
-    working-directory: backend 
+    working-directory: backend
 ```

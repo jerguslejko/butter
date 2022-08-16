@@ -1,22 +1,27 @@
 #!/usr/bin/env python -u
 
-import os
 import logging
-import click
-from typing import List
+import os
 from logging import getLogger
-from butter import config, supervisor, runner
+from typing import List
+
+import click
+
+from butter import config, runner, supervisor
 from butter.schema import Command
 
 logger = getLogger(__name__)
 
+
 @click.group(no_args_is_help=True)
-@click.option('-v', '--verbose', 'verbose', is_flag=True)
-def cli(verbose:bool):
+@click.option("-v", "--verbose", "verbose", is_flag=True)
+def cli(verbose: bool):
     if verbose:
         logging.basicConfig(level=logging.INFO)
 
-### 
+
+###
+
 
 def validate_program(ctx, param, value) -> str:
     namespace = config.load().name
@@ -29,7 +34,8 @@ def validate_program(ctx, param, value) -> str:
 
     return f"{namespace}:{namespace}-{value}"
 
-def validate_programs(ctx, param, value) -> List[str]: 
+
+def validate_programs(ctx, param, value) -> List[str]:
     namespace = config.load().name
 
     if value == ():
@@ -37,44 +43,53 @@ def validate_programs(ctx, param, value) -> List[str]:
 
     return list(map(lambda value: validate_program(ctx, param, value), value))
 
-def validate_command(ctx, param ,value) -> str:
+
+def validate_command(ctx, param, value) -> str:
     for command in config.load().commands:
         if command.name == value:
             return command
 
     raise click.BadParameter(f"command {value} not found")
 
+
 ###
 
+
 @cli.command(help="start butter")
-@click.argument('programs', callback=validate_programs, nargs=-1)
+@click.argument("programs", callback=validate_programs, nargs=-1)
 def start(programs: List[str]):
     supervisor.start(programs)
 
+
 @cli.command(help="restart butter")
-@click.argument('programs', callback=validate_programs, nargs=-1)
+@click.argument("programs", callback=validate_programs, nargs=-1)
 def restart(programs: List[str]):
     supervisor.restart(programs)
 
+
 @cli.command(help="stop butter")
-@click.argument('programs', callback=validate_programs, nargs=-1)
+@click.argument("programs", callback=validate_programs, nargs=-1)
 def stop(programs: List[str]):
     supervisor.stop(programs)
 
+
 @cli.command(help="get status of process")
-@click.argument('programs', callback=validate_programs, nargs=-1)
+@click.argument("programs", callback=validate_programs, nargs=-1)
 def status(programs: List[str]):
     supervisor.status(programs)
 
+
 @cli.command(help="print logs for a process")
 @click.argument("program", callback=validate_program)
-@click.option("-f", '--follow', 'follow', is_flag=True)
+@click.option("-f", "--follow", "follow", is_flag=True)
 def logs(program, follow):
     supervisor.logs(program, follow=follow)
+
 
 @cli.command(help="open web UI")
 def ui():
     os.system("open http://localhost:9001")
+
 
 @cli.command(
     help="run a custom command",
@@ -89,12 +104,14 @@ def run(ctx, command: Command):
     runner.run(command, extra_args=ctx.args)
 
 
-### helpers
+# helpers
+
 
 @cli.command(help="passes args to [supervisorctl -c supervisor.conf ...]", hidden=True)
 @click.argument("args", nargs=-1)
 def ctl(args):
     supervisor.supervisorctl(args)
+
 
 @cli.command(help="prints rendered supervisor configuration", hidden=True)
 def dump():
