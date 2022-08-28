@@ -15,7 +15,10 @@ logger = getLogger(__name__)
 
 @click.group(no_args_is_help=True)
 @click.option("-v", "--verbose", "verbose", is_flag=True)
-def cli(verbose: bool):
+@click.option("--config-path", "config_path")
+def cli(verbose: bool, config_path: str):
+    config.register(config_path)
+
     if verbose:
         logging.basicConfig(level=logging.INFO)
 

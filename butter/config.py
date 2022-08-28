@@ -17,9 +17,15 @@ from butter.writer import write
 
 logger = getLogger(__name__)
 
+_registered_paths = []
+
 
 def path(extra_path="") -> str:
     return os.path.join(os.path.normpath(user_config_dir("butter")), extra_path)
+
+
+def register(path: str) -> None:
+    _registered_paths.append(path)
 
 
 @cache
@@ -50,7 +56,7 @@ def load() -> Config:
         return results
 
     config = Configuration("butter", __name__)
-    configs = config_files(parent_directories(os.getcwd()))
+    configs = _registered_paths + config_files(parent_directories(os.getcwd()))
 
     if len(configs) == 0:
         raise RuntimeError("no configuration found")
