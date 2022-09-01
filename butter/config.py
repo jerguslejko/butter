@@ -63,6 +63,8 @@ def load() -> Config:
 
     for file in configs:
         config.set_file(file)
+        # only use first
+        break
 
     try:
         return Config(**config.get(), path=os.path.dirname(file))
