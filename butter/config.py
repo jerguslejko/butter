@@ -61,10 +61,7 @@ def load() -> Config:
     if len(configs) == 0:
         raise RuntimeError("no configuration found")
 
-    for file in configs:
-        config.set_file(file)
-        # only use first
-        break
+    config.set_file(file := configs[0])
 
     try:
         return Config(**config.get(), path=os.path.dirname(file))
